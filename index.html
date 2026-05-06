@@ -1,0 +1,1067 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>WOLFLIX Masterclass: FROM</title>
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Creepster&family=Inter:wght@300;400;600;800;900&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        horror: ['Creepster', 'cursive'],
+                        base: ['Inter', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* ==================================================================
+           DYNAMIC THEME ENGINE: GLOOMY DAY vs PITCH BLACK NIGHTMARE
+           ================================================================== */
+        
+        :root {
+            /* Theme 1: Daylight (Gloomy, Overcast, Dead Leaves) */
+            --bg-grad-top: #1c1917;     /* stone-900 */
+            --bg-grad-bot: #451a03;     /* amber-950 */
+            --panel-bg: rgba(28, 25, 23, 0.85);
+            --text-main: #e7e5e4;       /* stone-200 */
+            --text-muted: #a8a29e;      /* stone-400 */
+            --accent: #d97706;          /* amber-600 */
+            --accent-glow: rgba(217, 119, 6, 0.4);
+            --border-color: #78350f;    /* amber-900 */
+            --card-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            --btn-text: #fff;
+            --font-display: 'Inter', sans-serif;
+            --bg-pattern: url('data:image/svg+xml,%3Csvg width="20" height="20" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23b45309" fill-opacity="0.05" fill-rule="evenodd"%3E%3Ccircle cx="3" cy="3" r="3"/%3E%3Ccircle cx="13" cy="13" r="3"/%3E%3C/g%3E%3C/svg%3E');
+        }
+
+        body.theme-nightmare {
+            /* Theme 2: Nightmare Mode (Pitch Black, Blood Accents) */
+            --bg-grad-top: #000000;     /* pure black */
+            --bg-grad-bot: #1a0505;     /* dark blood red */
+            --panel-bg: rgba(5, 5, 5, 0.95); 
+            --text-main: #f8fafc;       /* white */
+            --text-muted: #9ca3af;      /* gray-400 */
+            --accent: #dc2626;          /* red-600 */
+            --accent-glow: rgba(220, 38, 38, 0.6);
+            --border-color: #7f1d1d;    /* red-900 */
+            --card-shadow: 0 10px 40px rgba(220, 38, 38, 0.15);
+            --btn-text: #fff;
+            --font-display: 'Creepster', cursive;
+            --bg-pattern: url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h40v40H0V0zm20 20h20v20H20V20zM0 20h20v20H0V20zM20 0h20v20H20V0z" fill="%23dc2626" fill-opacity="0.03" fill-rule="evenodd"/%3E%3C/svg%3E');
+        }
+
+        body {
+            background-color: var(--bg-grad-top);
+            background-image: var(--bg-pattern), linear-gradient(135deg, var(--bg-grad-top), var(--bg-grad-bot));
+            color: var(--text-main);
+            font-family: var(--font-base);
+            transition: background-image 1.5s ease-in-out, background-color 1.5s ease-in-out, color 1.5s ease-in-out;
+            overflow: hidden;
+            margin: 0;
+            min-height: 100vh;
+        }
+
+        /* Dark Vignette Overlay for claustrophobic feel */
+        body::after {
+            content: '';
+            position: fixed;
+            inset: 0;
+            pointer-events: none;
+            box-shadow: inset 0 0 100px rgba(0,0,0,0.8);
+            transition: box-shadow 1.5s ease;
+            z-index: 100;
+        }
+        body.theme-nightmare::after {
+            box-shadow: inset 0 0 250px rgba(220,38,38,0.15), inset 0 0 150px rgba(0,0,0,0.9);
+        }
+
+        h1, .font-display { font-family: var(--font-display); letter-spacing: 2px; }
+        .theme-nightmare h1 { letter-spacing: 4px; font-weight: normal; }
+
+        /* Component Styles bound to CSS Variables */
+        .survival-panel {
+            background: var(--panel-bg);
+            backdrop-filter: blur(16px);
+            border: 2px solid var(--border-color);
+            box-shadow: var(--card-shadow);
+            border-radius: 1rem;
+            transition: all 1s ease;
+        }
+
+        .survival-btn {
+            background-color: var(--accent);
+            color: var(--btn-text);
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 0 15px var(--accent-glow);
+            transition: all 0.3s ease;
+            border-radius: 0.5rem;
+            border: 2px solid transparent;
+        }
+        .survival-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--accent-glow);
+            filter: brightness(1.2);
+        }
+        .survival-btn-outline {
+            background-color: transparent;
+            color: var(--text-main);
+            border: 2px solid var(--accent);
+        }
+        .survival-btn-outline:hover { background-color: var(--accent); color: var(--btn-text); }
+
+        .text-accent { color: var(--accent); transition: color 1s ease; }
+        .border-accent { border-color: var(--accent); transition: border-color 1s ease; }
+
+        /* --- Scroll & Fullscreen Fixes (Advanced Centering Technique) --- */
+        .slide {
+            display: none; opacity: 0; width: 100%; height: 100%;
+            overflow-y: auto; position: relative; z-index: 10;
+        }
+        .slide.active { 
+            display: block; 
+            animation: fadeHorror 0.8s forwards; 
+        }
+        .page-content {
+            min-height: 100%; margin: 0 auto; width: 100%; max-width: 1000px;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            padding: 4rem 1.5rem 8rem 1.5rem; text-align: center;
+        }
+
+        @keyframes fadeHorror {
+            0% { opacity: 0; transform: scale(0.95); filter: grayscale(100%); }
+            100% { opacity: 1; transform: scale(1); filter: grayscale(0%); }
+        }
+
+        /* --- Interactive Minigames --- */
+        
+        /* Scratch Lexicon */
+        .scratch-card { position: relative; overflow: hidden; cursor: crosshair; }
+        .scratch-cover {
+            position: absolute; inset: 0; background-color: #292524;
+            background-image: url('data:image/svg+xml,%3Csvg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg"%3E%3Cfilter id="noiseFilter"%3E%3CfeTurbulence type="fractalNoise" baseFrequency="0.85" numOctaves="3" stitchTiles="stitch"/%3E%3C/filter%3E%3Crect width="100%25" height="100%25" filter="url(%23noiseFilter)"/%3E%3C/svg%3E');
+            z-index: 5; transition: opacity 0.5s ease; display: flex; align-items: center; justify-content: center;
+        }
+        .scratch-card:hover .scratch-cover { opacity: 0; pointer-events: none; }
+
+        /* Sheriff's Board */
+        .corkboard {
+            background-color: #451a03;
+            background-image: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100' height='100' filter='url(%23noise)' opacity='0.4'/%3E%3C/svg%3E");
+            border: 12px solid #292524;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.9);
+        }
+        .sticky-note {
+            background-color: #fef08a; color: #1e293b;
+            box-shadow: 3px 3px 10px rgba(0,0,0,0.6);
+            transform: rotate(-2deg); transition: transform 0.2s;
+        }
+        .sticky-note:hover { transform: rotate(0deg) scale(1.05); }
+
+        /* Nightfall Slider */
+        input[type=range] { -webkit-appearance: none; width: 100%; background: transparent; }
+        input[type=range]::-webkit-slider-thumb {
+            -webkit-appearance: none; height: 40px; width: 40px;
+            border-radius: 50%; background: #d97706;
+            cursor: pointer; margin-top: -16px;
+            box-shadow: 0 0 30px #fcd34d; transition: all 0.2s;
+        }
+        body.theme-nightmare input[type=range]::-webkit-slider-thumb { background: #dc2626; box-shadow: 0 0 30px #ef4444; }
+        input[type=range]::-webkit-slider-runnable-track {
+            width: 100%; height: 8px; cursor: pointer;
+            background: linear-gradient(to right, #d97706, #1e293b); border-radius: 4px;
+        }
+
+        /* Nail the Window */
+        .scary-window {
+            background-color: #000000;
+            background-image: radial-gradient(circle at center, rgba(220, 38, 38, 0.15) 0%, transparent 60%);
+            border: 16px solid #1c1917; box-shadow: inset 0 0 50px #000;
+            position: relative; overflow: hidden;
+        }
+        .monster-eyes {
+            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
+            font-size: 4rem; opacity: 0.6; animation: blink 4s infinite; text-shadow: 0 0 20px red;
+        }
+        @keyframes blink { 0%, 96%, 98%, 100% { opacity: 0.6; } 97% { opacity: 0; } }
+        
+        .wooden-plank {
+            position: absolute; left: -10%; right: -10%; height: 60px;
+            background-color: #451a03; border: 2px solid #292524;
+            background-image: repeating-linear-gradient(0deg, transparent, transparent 10px, rgba(0,0,0,0.3) 10px, rgba(0,0,0,0.3) 20px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.9);
+            display: flex; align-items: center; justify-content: space-between; padding: 0 40px;
+            transform: scale(1.5); opacity: 0; z-index: 20;
+        }
+        .wooden-plank::before, .wooden-plank::after {
+            content: '●'; color: #000; font-size: 24px; text-shadow: 1px 1px 0 #444;
+        }
+        .plank-anim { animation: thwack 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+        @keyframes thwack {
+            to { transform: scale(1) rotate(var(--rot)); opacity: 1; }
+        }
+
+        /* --- Interactive Reveal Cards --- */
+        .interactive-card { cursor: pointer; transition: all 0.3s ease; }
+        .interactive-card:hover { transform: translateY(-3px); border-color: var(--accent); box-shadow: 0 8px 20px var(--accent-glow); }
+        .reveal-content { max-height: 0; opacity: 0; overflow: hidden; transition: all 0.4s ease; }
+        .interactive-card.open .reveal-content, .survival-panel.open .reveal-content { max-height: 400px; opacity: 1; margin-top: 1rem; padding-top: 1rem; border-top: 1px dashed var(--border-color); }
+
+        /* Follow-up / Discussion Prompts */
+        .follow-up-box {
+            background: linear-gradient(90deg, rgba(220, 38, 38, 0.1) 0%, transparent 100%);
+            border-left: 4px solid var(--accent);
+            padding: 0.75rem 1rem; border-radius: 0 0.5rem 0.5rem 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 4px; }
+    </style>
+</head>
+<body class="flex flex-col h-screen w-screen selection:bg-[var(--accent)] selection:text-white">
+
+    <!-- PRAISE SYSTEM POPUP -->
+    <div id="praise-popup" class="fixed top-1/2 left-1/2 hidden text-accent font-black text-5xl md:text-7xl text-center z-[10000] drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)] uppercase tracking-tighter w-full pointer-events-none transform -translate-x-1/2 -translate-y-1/2">
+        <span id="praise-text" class="bg-black/90 px-8 py-4 border-4 border-accent rounded-2xl inline-block" style="text-shadow: 0px 0px 20px var(--accent);"></span>
+    </div>
+
+    <!-- TOP BAR -->
+    <header class="fixed top-0 left-0 w-full h-16 survival-panel rounded-none border-t-0 border-l-0 border-r-0 border-b-2 z-40 flex items-center justify-between px-6 transition-colors duration-1000">
+        <div class="flex items-center gap-4">
+            <span class="text-3xl drop-shadow-md">🌲</span>
+            <h1 class="font-display font-black tracking-widest text-2xl accent-text uppercase hidden md:block">Teacher's Guide</h1>
+            <span class="font-base text-xs font-bold tracking-widest border border-current px-2 py-1 rounded opacity-80 uppercase md:ml-2">Level: B1</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <!-- Praise System -->
+            <div class="flex items-center gap-2 bg-[var(--text-main)]/5 border border-[var(--border-color)] rounded-xl px-3 py-1 shadow-inner mr-2">
+                <span class="hidden lg:inline text-[10px] opacity-70 font-bold mr-1 uppercase tracking-widest">Praise:</span>
+                <button onclick="triggerPraise('SURVIVOR! 🪨')" class="text-xl hover:scale-125 transition-transform drop-shadow-md" title="Survivor!">🪨</button>
+                <button onclick="triggerPraise('NAILED IT! 🔨')" class="text-xl hover:scale-125 transition-transform drop-shadow-md" title="Nailed It!">🔨</button>
+                <button onclick="triggerPraise('SAFE! 🏚️')" class="text-xl hover:scale-125 transition-transform drop-shadow-md" title="Safe!">🏚️</button>
+            </div>
+
+            <button onclick="toggleFullscreen()" class="font-base text-xs font-bold survival-btn-outline px-4 py-2 uppercase tracking-widest rounded hidden sm:block">
+                Fullscreen
+            </button>
+            <button onclick="toggleNotepad()" class="font-base text-xs font-bold survival-btn px-4 py-2 uppercase tracking-widest shadow-md rounded">
+                Town Notes
+            </button>
+        </div>
+    </header>
+
+    <!-- MAIN APP WRAPPER -->
+    <div class="flex flex-col flex-1 w-full max-w-[1400px] mx-auto z-10 p-2 md:p-6 overflow-hidden">
+        
+        <main class="flex-1 relative overflow-y-auto no-scrollbar rounded-2xl">
+            
+            <!-- ========================================== -->
+            <!-- ACT I: THE TRAP (DAYLIGHT MODE)            -->
+            <!-- ========================================== -->
+
+            <!-- PAGE 1: COVER -->
+            <section class="slide active text-center" id="slide-0">
+                <div class="page-content">
+                    <div class="w-full max-w-[200px] md:max-w-xs survival-panel p-3 mb-6 shadow-2xl rounded-2xl relative border-4 border-[var(--border-color)] transform -rotate-2 hover:rotate-0 transition-transform duration-300 mx-auto">
+                        <img src="https://image.tmdb.org/t/p/w500/ps46NdLlH70ptDD8ailTL8TCZU3.jpg" alt="FROM Cover" class="w-full h-auto max-h-[40vh] object-contain rounded-xl grayscale-[20%] contrast-125">
+                    </div>
+
+                    <span class="text-xs font-bold tracking-[0.2em] uppercase text-muted mb-4 border border-[var(--border-color)] px-4 py-1 rounded-full bg-[var(--panel-bg)]">WOLFLIX Masterclass</span>
+                    <h1 class="text-7xl md:text-9xl font-display font-black mb-2 text-accent drop-shadow-xl tracking-widest">FROM</h1>
+                    <h2 class="text-xl md:text-2xl font-bold text-main mb-8 uppercase tracking-widest opacity-80">Once you enter, you cannot leave.</h2>
+                    <div class="survival-panel p-8 mb-10 max-w-2xl border-l-4 border-l-accent mx-auto">
+                        <p class="text-xl leading-relaxed font-medium italic">
+                            "A terrifying mystery awaits in a nightmarish town in middle America that traps all those who enter."
+                        </p>
+                    </div>
+                    <button onclick="nextSlide()" class="survival-btn px-10 py-4 text-xl flex items-center gap-3 mx-auto">
+                        Enter the Town <span>🌲</span>
+                    </button>
+                </div>
+            </section>
+
+            <!-- PAGE 2: WELCOME DIRECTIVE -->
+            <section class="slide" id="slide-1">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Directive 01</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-10 text-center">Welcome, Sheriff</h1>
+                    <div class="survival-panel p-10 max-w-4xl mx-auto w-full text-xl leading-relaxed">
+                        <p class="mb-6 font-bold text-2xl border-b border-[var(--border-color)] pb-4">This is a Survival Horror class.</p>
+                        <p class="mb-6">Your B1 (Intermediate) student is a new arrival to the town. Focus on building tension. You will teach them the rules of survival before the sun goes down.</p>
+                        <div class="bg-[var(--text-main)]/5 p-6 rounded-lg border border-[var(--border-color)]">
+                            <h3 class="font-bold uppercase text-sm mb-3 accent-text tracking-widest">Grammar & Lexis Targets:</h3>
+                            <ul class="list-disc pl-6 font-bold text-lg space-y-3 opacity-90">
+                                <li><strong>Modals of Obligation:</strong> Must, Mustn't, Have to.</li>
+                                <li><strong>Survival Phrasal Verbs:</strong> Keep out, Break in, Run away, Get out.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 3: WARM UP 1 (ROAD TRIPS) -->
+            <section class="slide" id="slide-2">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Warm-Up Phase</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-10 text-center">Getting Lost</h1>
+                    
+                    <div class="survival-panel p-10 max-w-4xl mx-auto w-full text-center">
+                        <span class="text-7xl mb-6 block">🗺️</span>
+                        <p class="text-2xl font-bold mb-10 leading-relaxed max-w-2xl mx-auto">
+                            "Have you ever been completely lost on a road trip? Do you trust your GPS blindly?"
+                        </p>
+                        <div class="flex flex-col gap-4">
+                            <button class="survival-btn-outline p-4 text-lg font-bold rounded-lg w-full" onclick="triggerPraise('GOOD START! 🚗')">Ask the student</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 4: WARM UP 2 (THE NIGHTMARE TOWN) -->
+            <section class="slide" id="slide-3">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Warm-Up Phase</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-10 text-center">The Nightmare</h1>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto w-full">
+                        <div class="survival-panel p-8 text-center flex flex-col justify-center items-center group cursor-pointer hover:border-accent">
+                            <span class="text-6xl mb-4 group-hover:animate-spin">🔄</span>
+                            <h3 class="text-2xl font-bold mb-4">The Loop</h3>
+                            <p class="text-lg opacity-80">Imagine driving into a town where every road you take leads you right back to the center.</p>
+                        </div>
+                        <div class="survival-panel p-8 text-center flex flex-col justify-center items-center group cursor-pointer hover:border-accent">
+                            <span class="text-6xl mb-4 group-hover:scale-110 transition-transform">😱</span>
+                            <h3 class="text-2xl font-bold mb-4">The Panic</h3>
+                            <p class="text-lg opacity-80">How long would it take before you panic? Would you keep driving or stop the car?</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 5: OFFICIAL SYNOPSIS -->
+            <section class="slide" id="slide-4">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Town Archives</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-10 text-center">The Premise</h1>
+                    
+                    <div class="survival-panel p-10 md:p-14 max-w-4xl mx-auto w-full relative overflow-hidden bg-[var(--panel-bg)] text-[var(--text-main)] border-4 border-[var(--border-color)] shadow-2xl transform rotate-1">
+                        <!-- Blood stain decoration -->
+                        <div class="absolute -top-10 -right-10 w-32 h-32 bg-red-900 rounded-full blur-2xl opacity-20"></div>
+                        
+                        <h3 class="text-3xl font-black mb-6 uppercase border-b-2 border-[var(--border-color)] pb-4 font-display tracking-widest">Classified File: The Township</h3>
+                        <p class="text-xl leading-loose font-bold mb-6">
+                            SUBJECT: Unwilling residents of a mysterious town.
+                        </p>
+                        <p class="text-xl leading-loose font-bold mb-6">
+                            THE TRAP: Anyone who sees the fallen tree and the crows on the road is already trapped. You cannot drive away.
+                        </p>
+                        <p class="text-xl leading-loose font-bold">
+                            THE THREAT: By day, the town is normal. By night, terrifying <span class="bg-red-900/40 text-red-300 px-2 rounded border border-red-800">creatures</span> emerge from the forest. They look human. They smile. But if you open the door, they will kill you.
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 6: THE LEXICON (SCRATCH MINIGAME) -->
+            <section class="slide" id="slide-5">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Survival Nouns</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-8 text-center">The Town Lexicon</h1>
+                    <p class="text-center text-lg mb-8 opacity-80 max-w-2xl mx-auto">Sweep away the dirt (hover with your mouse) to reveal the key survival vocabulary.</p>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
+                        <div class="survival-panel p-8 text-center scratch-card min-h-[250px] flex flex-col justify-center border-4">
+                            <div class="scratch-cover"><span class="text-stone-300 font-bold tracking-widest uppercase opacity-70">Sweep to reveal</span></div>
+                            <span class="text-5xl mb-4">🪨</span>
+                            <h3 class="font-black text-3xl uppercase tracking-widest mb-2 text-accent">Talisman</h3>
+                            <p class="text-sm font-bold opacity-80 mb-4 border-b border-[var(--border-color)] pb-4">Meaning: An object thought to protect from evil.</p>
+                            <p class="text-sm italic text-[var(--text-muted)]">"Do you have a lucky charm or object?"</p>
+                        </div>
+                        <div class="survival-panel p-8 text-center scratch-card min-h-[250px] flex flex-col justify-center border-4">
+                            <div class="scratch-cover"><span class="text-stone-300 font-bold tracking-widest uppercase opacity-70">Sweep to reveal</span></div>
+                            <span class="text-5xl mb-4">🪤</span>
+                            <h3 class="font-black text-3xl uppercase tracking-widest mb-2 text-accent">Trap</h3>
+                            <p class="text-sm font-bold opacity-80 mb-4 border-b border-[var(--border-color)] pb-4">Meaning: A situation designed to catch and prevent escape.</p>
+                            <p class="text-sm italic text-[var(--text-muted)]">"Have you ever felt trapped in a situation?"</p>
+                        </div>
+                        <div class="survival-panel p-8 text-center scratch-card min-h-[250px] flex flex-col justify-center border-4">
+                            <div class="scratch-cover"><span class="text-stone-300 font-bold tracking-widest uppercase opacity-70">Sweep to reveal</span></div>
+                            <span class="text-5xl mb-4">🌲</span>
+                            <h3 class="font-black text-3xl uppercase tracking-widest mb-2 text-accent">Woods</h3>
+                            <p class="text-sm font-bold opacity-80 mb-4 border-b border-[var(--border-color)] pb-4">Meaning: A dark, dense area of land covered with trees.</p>
+                            <p class="text-sm italic text-[var(--text-muted)]">"Would you survive a night alone in the woods?"</p>
+                        </div>
+                        <div class="survival-panel p-8 text-center scratch-card min-h-[250px] flex flex-col justify-center border-4">
+                            <div class="scratch-cover"><span class="text-stone-300 font-bold tracking-widest uppercase opacity-70">Sweep to reveal</span></div>
+                            <span class="text-5xl mb-4">👹</span>
+                            <h3 class="font-black text-3xl uppercase tracking-widest mb-2 text-accent">Creature</h3>
+                            <p class="text-sm font-bold opacity-80 mb-4 border-b border-[var(--border-color)] pb-4">Meaning: A frightening or unknown monster.</p>
+                            <p class="text-sm italic text-[var(--text-muted)]">"What is the scariest movie monster you know?"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- ACT II: SURVIVAL RULES (Pages 7-10)        -->
+            <!-- ========================================== -->
+
+            <!-- PAGE 7: GRAMMAR - MODALS -->
+            <section class="slide" id="slide-6">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Grammar Focus</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-10 text-center">Rules of Survival</h1>
+                    
+                    <div class="survival-panel p-10 max-w-5xl mx-auto w-full flex flex-col md:flex-row gap-8">
+                        <div class="flex-1 bg-[var(--text-main)]/5 p-6 rounded-xl border-l-8 border-green-600 shadow-inner">
+                            <h3 class="font-black text-2xl mb-2 uppercase">Must / Have to</h3>
+                            <p class="text-sm font-bold uppercase tracking-widest opacity-60 mb-4">Obligation</p>
+                            <p class="text-xl italic mb-2">"I <strong class="text-green-500">must</strong> survive the night."</p>
+                            <p class="text-xl italic">"We <strong class="text-green-500">have to</strong> lock the doors."</p>
+                        </div>
+                        <div class="flex-1 bg-[var(--text-main)]/5 p-6 rounded-xl border-l-8 border-red-700 shadow-inner">
+                            <h3 class="font-black text-2xl mb-2 uppercase">Mustn't</h3>
+                            <p class="text-sm font-bold uppercase tracking-widest opacity-60 mb-4">Prohibition / Danger</p>
+                            <p class="text-xl italic mb-2">"You <strong class="text-red-500">mustn't</strong> listen to them."</p>
+                            <p class="text-xl italic">"We <strong class="text-red-500">mustn't</strong> go into the woods."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 8: MINIGAME - SHERIFF'S BOARD -->
+            <section class="slide" id="slide-7">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Interactive Challenge</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-8 text-center">The Sheriff's Board</h1>
+                    <p class="text-center text-lg mb-8 opacity-80">Click the missing words to complete the town laws using the correct Modal.</p>
+
+                    <div class="corkboard p-10 max-w-4xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-8 rounded-lg relative">
+                        
+                        <div class="sticky-note p-6 text-center cursor-pointer" onclick="this.innerHTML = `<span class='text-red-700 text-3xl block mb-2 uppercase font-black'>MUSTN'T</span> open the window after dark.`">
+                            <span class="border-b-4 border-slate-800 px-8 py-1 text-transparent bg-slate-800/10">______</span><br>open the window after dark.
+                        </div>
+                        
+                        <div class="sticky-note p-6 text-center cursor-pointer transform rotate-2" onclick="this.innerHTML = `You <span class='text-green-800 text-3xl block my-2 uppercase font-black'>HAVE TO</span> nail the talisman to the wall.`">
+                            You <br><span class="border-b-4 border-slate-800 px-8 py-1 text-transparent bg-slate-800/10">______</span><br> nail the talisman to the wall.
+                        </div>
+
+                        <div class="sticky-note p-6 text-center cursor-pointer transform -rotate-1 md:col-span-2 max-w-md mx-auto" onclick="this.innerHTML = `We <span class='text-red-700 text-3xl inline-block mx-2 uppercase font-black'>MUST</span> survive the night.`">
+                            We <span class="border-b-4 border-slate-800 px-8 py-1 text-transparent bg-slate-800/10 inline-block align-middle mx-2">______</span> survive the night.
+                        </div>
+
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 9: VOCABULARY - PHRASAL VERBS -->
+            <section class="slide" id="slide-8">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Action Lexicon</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-10 text-center">Phrasal Verbs of Escape</h1>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto w-full">
+                        <div class="survival-panel p-8 border-t-4 border-accent">
+                            <h3 class="text-3xl font-black mb-2 text-accent">Keep out</h3>
+                            <p class="text-lg opacity-80 mb-4">To prevent someone/something from entering.</p>
+                            <p class="italic">"Nail the windows to keep the monsters out."</p>
+                        </div>
+                        <div class="survival-panel p-8 border-t-4 border-accent">
+                            <h3 class="text-3xl font-black mb-2 text-accent">Break in</h3>
+                            <p class="text-lg opacity-80 mb-4">To enter a building by force.</p>
+                            <p class="italic">"They will try to break in if you forget the talisman."</p>
+                        </div>
+                        <div class="survival-panel p-8 border-t-4 border-accent">
+                            <h3 class="text-3xl font-black mb-2 text-accent">Get out</h3>
+                            <p class="text-lg opacity-80 mb-4">To escape from a closed place.</p>
+                            <p class="italic">"We need to get out of this town!"</p>
+                        </div>
+                        <div class="survival-panel p-8 border-t-4 border-accent">
+                            <h3 class="text-3xl font-black mb-2 text-accent">Give up</h3>
+                            <p class="text-lg opacity-80 mb-4">To lose hope and stop trying to survive.</p>
+                            <p class="italic">"No matter what you see, you mustn't give up."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 10: MINIGAME - PHRASAL MATCH -->
+            <section class="slide" id="slide-9">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm accent-text text-center">Action Application</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-8 text-center">Phrasal Match</h1>
+                    <p class="text-center text-lg mb-8 opacity-80">Click the blank space to select the correct phrasal verb for each terrifying situation.</p>
+
+                    <div class="space-y-6 max-w-4xl mx-auto w-full text-xl font-bold">
+                        <div class="survival-panel p-6 border-l-8 border-accent flex flex-col md:flex-row items-center justify-between cursor-pointer text-left" onclick="this.querySelector('.ans').classList.toggle('hidden')">
+                            <p class="w-full">1. The monsters are at the window. We need to <span class="border-b-4 border-current px-6 mx-2 text-transparent">___</span>.</p>
+                            <div class="ans hidden text-accent uppercase tracking-widest w-full md:w-auto mt-4 md:mt-0 text-right">> KEEP THEM OUT</div>
+                        </div>
+                        <div class="survival-panel p-6 border-l-8 border-accent flex flex-col md:flex-row items-center justify-between cursor-pointer text-left" onclick="this.querySelector('.ans').classList.toggle('hidden')">
+                            <p class="w-full">2. The house is surrounded. They are trying to <span class="border-b-4 border-current px-6 mx-2 text-transparent">___</span>.</p>
+                            <div class="ans hidden text-accent uppercase tracking-widest w-full md:w-auto mt-4 md:mt-0 text-right">> BREAK IN</div>
+                        </div>
+                        <div class="survival-panel p-6 border-l-8 border-accent flex flex-col md:flex-row items-center justify-between cursor-pointer text-left" onclick="this.querySelector('.ans').classList.toggle('hidden')">
+                            <p class="w-full">3. We are trapped in this town. How do we <span class="border-b-4 border-current px-6 mx-2 text-transparent">___</span>?</p>
+                            <div class="ans hidden text-accent uppercase tracking-widest w-full md:w-auto mt-4 md:mt-0 text-right">> GET OUT</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- ACT III: NIGHTFALL (Pages 11-15)           -->
+            <!-- ========================================== -->
+
+            <!-- PAGE 11: THE WARNING -->
+            <section class="slide text-center" id="slide-10">
+                <div class="page-content">
+                    <div class="max-w-4xl mx-auto flex flex-col items-center">
+                        <span class="text-8xl mb-8 block drop-shadow-lg">🔔</span>
+                        <h2 class="font-base font-bold tracking-widest mb-4 uppercase text-sm accent-text animate-pulse">Emergency Broadcast</h2>
+                        <h1 class="text-5xl md:text-7xl font-black font-display uppercase mb-8">The Warning</h1>
+                        <div class="survival-panel p-10 max-w-3xl border-4 border-accent text-2xl leading-relaxed font-bold italic shadow-2xl">
+                            "The sun is going down. The monsters are coming from the forest. They look like normal people. They will smile at you."
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 12: THE NIGHTFALL SLIDER (TRANSITION) -->
+            <section class="slide" id="slide-11">
+                <div class="page-content h-full">
+                    <div class="w-full max-w-3xl mx-auto flex flex-col items-center justify-center text-center">
+                        <h2 class="font-base font-bold tracking-widest mb-4 uppercase text-sm accent-text animate-pulse">Critical Action Required</h2>
+                        <h1 class="text-5xl md:text-7xl font-black font-display uppercase mb-10">Nightfall is Here</h1>
+                        
+                        <p class="text-2xl font-light mb-16 italic opacity-90">
+                            "Drag the sun down to hide. If you don't, they will find you."
+                        </p>
+                        
+                        <div class="w-full survival-panel p-12 flex flex-col items-center rounded-3xl max-w-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] border-4">
+                            <label for="night-slider" class="text-3xl font-black uppercase tracking-widest mb-10 text-accent font-display" id="sun-label">Daylight</label>
+                            <input type="range" id="night-slider" min="0" max="100" value="0" class="w-full mb-10 h-4">
+                            <p class="text-base font-bold opacity-70 uppercase tracking-widest">Student: Pull the slider to 100%.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- NIGHTMARE MODE ACTIVE (Pages 13-25)        -->
+            <!-- ========================================== -->
+
+            <!-- PAGE 13: SCREENING PREP (NIGHTMARE) -->
+            <section class="slide text-center" id="slide-12">
+                <div class="page-content">
+                    <div class="max-w-4xl mx-auto flex flex-col items-center">
+                        <span class="text-8xl mb-8 block drop-shadow-[0_0_20px_red]">🩸</span>
+                        <h2 class="font-base font-bold tracking-widest mb-4 uppercase text-sm text-red-500">Video Evidence</h2>
+                        <h1 class="text-5xl md:text-7xl font-black font-display uppercase mb-8 text-white">Screening Prep</h1>
+                        <div class="survival-panel p-10 max-w-3xl border-l-8 border-l-red-700 text-xl leading-relaxed text-left">
+                            <p class="mb-4">Watch the official trailer.</p>
+                            <p class="mb-4"><strong>Look</strong> at the protective talismans hanging on the doors.</p>
+                            <p><strong>Listen</strong> to what happens when night falls and the rules are broken.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 14: THE TRAILER -->
+            <section class="slide h-full" id="slide-13">
+                <div class="page-content h-full w-full">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Surveillance Feed</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-6 text-center text-white">FROM: Official Trailer</h1>
+                    
+                    <div class="w-full max-w-5xl mx-auto rounded-xl overflow-hidden border-8 border-red-900 bg-black shadow-[0_0_50px_rgba(220,38,38,0.3)] relative aspect-video shrink-0">
+                        <!-- YouTube Embed FROM Trailer (Corrected Link) -->
+                        <iframe class="absolute inset-0 w-full h-full" src="https://www.youtube.com/embed/pDHqAj4eJcM?rel=0" frameborder="0" allowfullscreen></iframe>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 15: COMPREHENSION CHECK -->
+            <section class="slide" id="slide-14">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Post-Screening</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">Comprehension Check</h1>
+                    
+                    <div class="space-y-6 max-w-4xl mx-auto w-full text-left">
+                        <div class="survival-panel p-8 rounded-xl border-l-8 border-red-700 cursor-pointer interactive-card" onclick="this.classList.toggle('open')">
+                            <p class="font-bold text-2xl italic">Q: Why can't the family drive away from the town?</p>
+                            <div class="reveal-content mt-4">
+                                <p class="text-red-400 font-bold text-xl uppercase tracking-widest">> Because the road goes in a continuous loop. They are trapped.</p>
+                                <div class="follow-up-box mt-4 py-2">
+                                    <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                    <p class="font-medium text-sm text-[var(--text-main)]">How would you react if you realized you were driving in circles and couldn't leave a town?</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="survival-panel p-8 rounded-xl border-l-8 border-red-700 cursor-pointer interactive-card" onclick="this.classList.toggle('open')">
+                            <p class="font-bold text-2xl italic">Q: What do the monsters do at the windows at night?</p>
+                            <div class="reveal-content mt-4">
+                                <p class="text-red-400 font-bold text-xl uppercase tracking-widest">> They whisper, smile, and ask to be let inside.</p>
+                                <div class="follow-up-box mt-4 py-2">
+                                    <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                    <p class="font-medium text-sm text-[var(--text-main)]">Why do you think the monsters pretend to be friendly people from the past instead of just attacking?</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- ACT IV: THE SIEGE (Pages 16-19)            -->
+            <!-- ========================================== -->
+
+            <!-- PAGE 16: SCRIPT ANALYSIS -->
+            <section class="slide" id="slide-15">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Document Review</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">The Whisper</h1>
+                    
+                    <div class="survival-panel p-12 max-w-4xl mx-auto w-full text-center border-4 border-red-900 shadow-2xl">
+                        <p class="text-4xl font-black italic mb-8 leading-relaxed font-display">
+                            "They whisper to you. They know your name."
+                        </p>
+                        <div class="bg-[var(--text-main)]/5 p-6 rounded-lg text-left border border-[var(--border-color)]">
+                            <p class="text-xl font-bold text-red-400 mb-2 uppercase tracking-widest">Psychological Terror:</p>
+                            <p class="text-lg opacity-90">Explore why a monster that whispers your name and smiles is infinitely scarier than a monster that just roars and breaks the door.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 17: MINIGAME - NAIL THE WINDOW (CORRECTED & ENHANCED) -->
+            <section class="slide" id="slide-16">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Interactive Defense</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-6 text-center text-white">Nail the Window</h1>
+                    <p class="text-center text-lg mb-8 opacity-80 max-w-2xl mx-auto">Answer the Phrasal Verb questions correctly to nail a wooden plank across the window and keep the monster out.</p>
+
+                    <div class="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto w-full items-center">
+                        <!-- Left: The Questions -->
+                        <div class="flex-1 space-y-4 flex flex-col justify-center w-full">
+                            <div class="survival-panel p-5 cursor-pointer hover:border-red-700 transition-colors text-left" onclick="nailWindow(this, 1, 'BREAK IN')">
+                                <p class="font-bold text-lg">1. To enter by force is to <span class="blank-word border-b-2 border-gray-500 px-6 mx-1 text-transparent">___</span>.</p>
+                                <div class="reveal-box hidden mt-4 pt-4 border-t border-red-900">
+                                    <div class="follow-up-box mt-0 py-2">
+                                        <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                        <p class="font-medium text-sm text-[var(--text-main)]">Have you ever locked yourself out and had to break into your own house or car?</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survival-panel p-5 cursor-pointer hover:border-red-700 transition-colors text-left" onclick="nailWindow(this, 2, 'KEEP OUT')">
+                                <p class="font-bold text-lg">2. To prevent from entering is to <span class="blank-word border-b-2 border-gray-500 px-6 mx-1 text-transparent">___</span>.</p>
+                                <div class="reveal-box hidden mt-4 pt-4 border-t border-red-900">
+                                    <div class="follow-up-box mt-0 py-2">
+                                        <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                        <p class="font-medium text-sm text-[var(--text-main)]">How do you usually keep bad energy or toxic people out of your life?</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="survival-panel p-5 cursor-pointer hover:border-red-700 transition-colors text-left" onclick="nailWindow(this, 3, 'GET OUT')">
+                                <p class="font-bold text-lg">3. To escape is to <span class="blank-word border-b-2 border-gray-500 px-6 mx-1 text-transparent">___</span>.</p>
+                                <div class="reveal-box hidden mt-4 pt-4 border-t border-red-900">
+                                    <div class="follow-up-box mt-0 py-2">
+                                        <p class="font-bold text-accent text-[10px] uppercase tracking-widest mb-1">🗣️ Discussion Prompt:</p>
+                                        <p class="font-medium text-sm text-[var(--text-main)]">If you had to get out of your city today and never return, where would you go?</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Right: The Scary Window -->
+                        <div class="flex-1 scary-window rounded-xl min-h-[350px] w-full flex flex-col justify-evenly relative">
+                            <div class="monster-eyes">👀</div>
+                            <div class="wooden-plank" id="plank-1" style="--rot: -3deg;"></div>
+                            <div class="wooden-plank" id="plank-2" style="--rot: 2deg;"></div>
+                            <div class="wooden-plank" id="plank-3" style="--rot: -1deg;"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 18: THE TALISMAN -->
+            <section class="slide" id="slide-17">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Cultural Lexicon</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">The Talisman</h1>
+                    
+                    <div class="flex flex-col md:flex-row gap-8 max-w-5xl mx-auto w-full items-center survival-panel p-10 shadow-2xl">
+                        <div class="text-8xl shrink-0 drop-shadow-[0_0_20px_rgba(255,255,255,0.3)] animate-pulse">🪨</div>
+                        <div class="text-left">
+                            <h3 class="text-3xl font-black mb-4 font-display">Talisman / Amulet</h3>
+                            <p class="text-xl leading-relaxed mb-4">An object, typically an inscribed ring or stone, that is thought to have magic powers and to bring good luck or protect from evil.</p>
+                            <p class="text-lg italic text-red-300 font-bold border-l-4 border-red-600 pl-4 bg-red-900/30 py-2">
+                                "You must hang the talisman by the door, or they will break in."
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 19: THE DILEMMA -->
+            <section class="slide" id="slide-18">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Moral Decision</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-8 text-center text-white">What Would You Do?</h1>
+                    
+                    <div class="survival-panel p-12 max-w-4xl mx-auto w-full text-center border-t-8 border-red-800 shadow-[0_20px_50px_rgba(0,0,0,0.9)]">
+                        <p class="text-2xl font-bold leading-relaxed mb-8">
+                            "You are inside the house. You hear your mother's voice outside the window asking to come in. She sounds terrified."
+                        </p>
+                        <p class="text-3xl font-black italic text-red-500 mb-10 font-display drop-shadow-md">
+                            "But you know your mother died 5 years ago."
+                        </p>
+                        <button class="survival-btn px-10 py-4 text-xl w-full max-w-md" onclick="triggerPraise('SURVIVOR! 🪨')">Do you open the window?</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ========================================== -->
+            <!-- ACT V: SPEAKING & SURVIVAL (Pages 20-25)   -->
+            <!-- ========================================== -->
+
+            <!-- PAGE 20: ROLEPLAY 1 -->
+            <section class="slide" id="slide-19">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Interactive Speaking</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">The New Arrival</h1>
+                    
+                    <div class="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto h-[45vh]">
+                        <!-- Teacher (New Arrival) -->
+                        <div class="flex-1 survival-panel p-8 flex flex-col justify-center text-center relative border-t-4 border-slate-500 shadow-xl">
+                            <h3 class="text-2xl font-bold mb-2 uppercase text-slate-300">Teacher</h3>
+                            <p class="text-sm opacity-60 tracking-widest mb-8 font-bold">Plays: The New Arrival (Confused & Angry)</p>
+                            <p class="text-2xl italic mb-6">"I am leaving! I have to get out of this crazy town."</p>
+                            <p class="text-2xl italic">"Why are you nailing the windows? You're insane!"</p>
+                        </div>
+                        
+                        <!-- Student (Sheriff) -->
+                        <div class="flex-1 survival-panel p-8 flex flex-col justify-center text-center relative border-t-4 border-red-700 bg-red-900/10 shadow-xl">
+                            <h3 class="text-2xl font-bold mb-2 uppercase text-red-500">Student</h3>
+                            <p class="text-sm opacity-60 tracking-widest mb-8 font-bold">Plays: The Sheriff (Explaining the Modals)</p>
+                            <p class="text-2xl italic mb-6 font-bold">"You <span class="text-red-500 underline">mustn't</span> go outside! It's dark!"</p>
+                            <p class="text-2xl italic font-bold">"You <span class="text-red-500 underline">have to</span> stay inside and <span class="text-red-500 underline">keep them out</span>."</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 21: ROLEPLAY 2 -->
+            <section class="slide" id="slide-20">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Interactive Speaking</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">The Siege</h1>
+                    
+                    <div class="flex flex-col md:flex-row gap-8 w-full max-w-5xl mx-auto h-[45vh]">
+                        <!-- Teacher (Monster) -->
+                        <div class="flex-1 survival-panel p-8 flex flex-col justify-center text-center relative border-t-4 border-purple-800 shadow-xl">
+                            <h3 class="text-2xl font-bold mb-2 uppercase text-purple-400">Teacher</h3>
+                            <p class="text-sm opacity-60 tracking-widest mb-8 font-bold">Plays: The Creature at the window</p>
+                            <p class="text-2xl italic mb-6">"Please, open the window. It's so cold out here."</p>
+                            <p class="text-2xl italic">"I know you. Don't you remember me?"</p>
+                        </div>
+                        
+                        <!-- Student (Resident) -->
+                        <div class="flex-1 survival-panel p-8 flex flex-col justify-center text-center relative border-t-4 border-red-700 bg-red-900/10 shadow-xl">
+                            <h3 class="text-2xl font-bold mb-2 uppercase text-red-500">Student</h3>
+                            <p class="text-sm opacity-60 tracking-widest mb-8 font-bold">Plays: The Terrified Resident</p>
+                            <p class="text-2xl italic mb-6 font-bold">"Go away! You <span class="text-red-500 underline">mustn't</span> break in!"</p>
+                            <p class="text-2xl italic font-bold">"I won't <span class="text-red-500 underline">give up</span>!"</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 22: DISCUSSION 1 -->
+            <section class="slide" id="slide-21">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Deep Discussion</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">The Psychology of Fear</h1>
+                    
+                    <div class="survival-panel p-12 max-w-4xl mx-auto w-full text-center shadow-xl">
+                        <span class="text-7xl mb-6 block">🧠</span>
+                        <p class="text-2xl font-bold leading-relaxed mb-8">
+                            "What is scarier: A monster that runs at you screaming and roaring, or a monster that looks like your grandmother and politely asks you to open the door?"
+                        </p>
+                        <p class="text-lg opacity-70 uppercase tracking-widest font-bold">Discuss the uncanny valley effect.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 23: DISCUSSION 2 -->
+            <section class="slide" id="slide-22">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Deep Discussion</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-8 text-center text-white">Isolation & Leadership</h1>
+                    
+                    <div class="survival-panel p-12 max-w-4xl mx-auto w-full text-center shadow-xl">
+                        <span class="text-7xl mb-6 block">👥</span>
+                        <p class="text-2xl font-bold leading-relaxed mb-8">
+                            "How does extreme isolation change people? If you were trapped in this town, who do you think becomes the leader? The strongest, the smartest, or the most ruthless?"
+                        </p>
+                        <p class="text-lg opacity-70 uppercase tracking-widest font-bold">Discuss group dynamics in survival situations.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 24: HOMEWORK -->
+            <section class="slide" id="slide-23">
+                <div class="page-content">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500 text-center">Post-Class Assignment</h2>
+                    <h1 class="text-4xl font-black font-display uppercase mb-10 text-center text-white">The Survival Guide</h1>
+                    
+                    <div class="survival-panel p-10 max-w-3xl mx-auto w-full relative bg-[var(--panel-bg)] text-[var(--text-main)] border-4 border-[var(--border-color)] shadow-2xl transform -rotate-1">
+                        <h3 class="text-3xl font-black mb-6 uppercase border-b-2 border-[var(--border-color)] pb-4 font-display tracking-widest">Assignment Brief:</h3>
+                        <p class="text-xl leading-loose font-bold mb-6">
+                            "Write a 5-rule survival guide for new arrivals to the town."
+                        </p>
+                        <ul class="list-disc pl-8 text-lg font-bold space-y-2 mb-8 opacity-90">
+                            <li>You must use Modals (Must / Mustn't / Have to).</li>
+                            <li>You must use at least 3 Phrasal Verbs from the lesson (Keep out, Break in, etc).</li>
+                        </ul>
+                        <p class="text-sm font-bold uppercase tracking-widest text-red-500 text-right">If you want to survive.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PAGE 25: APPRAISAL & END -->
+            <section class="slide" id="slide-24">
+                <div class="page-content items-center text-center">
+                    <h2 class="font-base font-bold tracking-widest mb-2 uppercase text-sm text-red-500">End of the Night</h2>
+                    <h1 class="text-4xl md:text-5xl font-black font-display uppercase mb-8 text-white">Survival Checklist</h1>
+                    
+                    <div class="space-y-4 max-w-2xl w-full text-xl font-bold text-left mb-12">
+                        <label class="flex items-center gap-6 p-6 survival-panel rounded-xl cursor-pointer">
+                            <input type="checkbox" class="w-8 h-8 accent-red-600">
+                            <span class="mt-1">Town Lexicon & Talismans understood.</span>
+                        </label>
+                        <label class="flex items-center gap-6 p-6 survival-panel rounded-xl cursor-pointer">
+                            <input type="checkbox" class="w-8 h-8 accent-red-600">
+                            <span class="mt-1">Survival Phrasal Verbs nailed.</span>
+                        </label>
+                        <label class="flex items-center gap-6 p-6 survival-panel rounded-xl cursor-pointer">
+                            <input type="checkbox" class="w-8 h-8 accent-red-600">
+                            <span class="mt-1">Modals of Obligation/Prohibition mastered.</span>
+                        </label>
+                    </div>
+
+                    <div class="border-t-2 border-current pt-10 w-full flex flex-col items-center">
+                        <p class="mb-8 text-2xl font-medium max-w-2xl mx-auto">Rate the horror level of this Masterclass:</p>
+                        <div class="flex justify-center gap-4 md:gap-8 mb-12">
+                            <button onclick="rate(1)" class="talisman-rating text-6xl md:text-8xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">🪨</button>
+                            <button onclick="rate(2)" class="talisman-rating text-6xl md:text-8xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">🪨</button>
+                            <button onclick="rate(3)" class="talisman-rating text-6xl md:text-8xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">🪨</button>
+                            <button onclick="rate(4)" class="talisman-rating text-6xl md:text-8xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">🪨</button>
+                            <button onclick="rate(5)" class="talisman-rating text-6xl md:text-8xl grayscale opacity-30 hover:scale-110 transition-transform filter drop-shadow-[0_0_15px_rgba(220,38,38,0.5)]">🪨</button>
+                        </div>
+                        <div id="rat-hub" class="hidden p-6 survival-panel font-bold text-2xl text-center uppercase tracking-widest text-red-500 w-max mx-auto">> RATED <span id="star-c" class="text-white mx-2 font-black text-4xl"></span> TALISMANS.</div>
+                        
+                        <button onclick="window.location.reload();" class="mt-12 survival-btn px-12 py-4 text-xl shadow-[0_0_30px_rgba(220,38,38,0.6)] border-2 border-transparent">
+                            Wait for Daylight (Restart)
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- DASHBOARD (Bottom Control) -->
+        <footer class="h-20 survival-panel flex items-center justify-between px-4 md:px-8 mt-4 shrink-0 rounded-xl relative z-40">
+            <div class="hidden md:flex flex-1 items-center gap-2">
+                <span class="font-bold text-xl tracking-[0.2em] uppercase text-accent font-display">WOLFLIX</span>
+                <span class="text-sm uppercase tracking-widest border-l-2 border-[var(--border-color)] pl-2 opacity-70">Masterclass</span>
+            </div>
+
+            <div class="flex items-center justify-center flex-1 gap-6">
+                <button onclick="prevSlide()" class="w-12 h-12 flex items-center justify-center border-2 border-[var(--border-color)] rounded-full hover:bg-[var(--accent)] hover:text-white transition-colors" title="Previous Phase">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 19l-7-7 7-7"/></svg>
+                </button>
+                <div class="w-32 bg-black/40 h-2 rounded-full overflow-hidden border border-[var(--border-color)]">
+                    <div id="lcd-prog" class="h-full bg-[var(--accent)] w-0 transition-all duration-300 shadow-[0_0_10px_var(--accent)]"></div>
+                </div>
+                <button onclick="nextSlide()" class="w-12 h-12 flex items-center justify-center border-2 border-[var(--border-color)] rounded-full hover:bg-[var(--accent)] hover:text-white transition-colors" title="Next Phase">
+                    <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5l7 7-7 7"/></svg>
+                </button>
+            </div>
+
+            <div class="flex-1 text-right font-display font-bold tracking-widest uppercase text-xl">
+                Page <span id="page-num" class="text-accent ml-1">01</span> / <span id="total-pages">25</span>
+            </div>
+        </footer>
+    </div>
+
+    <!-- SLIDE-OUT NOTEPAD -->
+    <aside id="notepad-panel" class="fixed top-16 right-0 w-full max-w-md h-[calc(100vh-9rem)] bg-[var(--bg-grad-top)] border-l-8 border-[var(--border-color)] z-50 translate-x-full flex flex-col shadow-[-10px_0px_50px_rgba(0,0,0,0.8)] transition-transform duration-500 text-[var(--text-main)]">
+        <div class="p-4 border-b-4 border-[var(--border-color)] bg-[var(--panel-bg)] flex justify-between items-center">
+            <h2 class="font-base font-black uppercase tracking-widest text-lg flex items-center gap-2">
+                <svg width="24" height="24" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                Town Notes
+            </h2>
+            <button onclick="toggleNotepad()" class="text-muted hover:text-accent font-black text-2xl px-2">✕</button>
+        </div>
+        <textarea class="flex-1 w-full bg-transparent p-6 font-base font-bold text-xl leading-relaxed outline-none resize-none placeholder:opacity-30" placeholder="Type survival notes or student feedback here..."></textarea>
+    </aside>
+
+    <!-- JS LOGIC -->
+    <script>
+        // --- 1. Pagination Logic ---
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const totalSlides = slides.length;
+
+        function updateUI() {
+            document.getElementById('page-num').innerText = (currentSlide + 1).toString().padStart(2, '0');
+            document.getElementById('total-pages').innerText = totalSlides;
+            
+            const prog = document.getElementById('lcd-prog');
+            if(totalSlides > 1) prog.style.width = `${(currentSlide / (totalSlides - 1)) * 100}%`;
+            
+            // Ativa Nightmare Mode a partir da página 13 (índice 12 - Trailer) se o slider falhar ou user avançar rápido
+            if (currentSlide >= 12 && !document.body.classList.contains('theme-nightmare')) {
+                document.body.classList.add('theme-nightmare');
+            } else if (currentSlide < 11 && document.body.classList.contains('theme-nightmare')) {
+                document.body.classList.remove('theme-nightmare');
+                document.getElementById('night-slider').value = 0;
+                document.getElementById('sun-label').innerText = "Daylight";
+            }
+        }
+
+        function goToSlide(i) {
+            if (i < 0 || i >= totalSlides) return;
+            slides.forEach(s => s.classList.remove('active'));
+            currentSlide = i;
+            slides[currentSlide].classList.add('active');
+            updateUI();
+        }
+
+        function nextSlide() { goToSlide(currentSlide + 1); }
+        function prevSlide() { goToSlide(currentSlide - 1); }
+
+        // Garantia de Escopo Global
+        window.nextSlide = nextSlide;
+        window.prevSlide = prevSlide;
+        window.goToSlide = goToSlide;
+
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'ArrowRight') nextSlide();
+            if(e.key === 'ArrowLeft') prevSlide();
+        });
+
+        // --- 2. Fullscreen & Notepad ---
+        function toggleFullscreen() {
+            const doc = window.document;
+            const docEl = doc.documentElement;
+            const req = docEl.requestFullscreen || docEl.webkitRequestFullScreen || docEl.msRequestFullscreen;
+            const exit = doc.exitFullscreen || doc.webkitExitFullscreen || doc.msExitFullscreen;
+            try {
+                if (!doc.fullscreenElement) {
+                    const promise = req ? req.call(docEl) : null;
+                    if (promise && promise.catch) promise.catch(err => console.warn(err));
+                } else {
+                    const promise = exit ? exit.call(doc) : null;
+                    if (promise && promise.catch) promise.catch(err => console.warn(err));
+                }
+            } catch (err) { console.warn(err); }
+        }
+
+        function toggleNotepad() {
+            document.getElementById('notepad-panel').classList.toggle('translate-x-full');
+        }
+
+        // --- 3. Praise System ---
+        function triggerPraise(textHTML) {
+            const popup = document.getElementById('praise-popup');
+            const textContainer = document.getElementById('praise-text');
+            
+            textContainer.innerHTML = textHTML;
+            popup.classList.remove('hidden');
+            popup.classList.add('praise-anim');
+            
+            setTimeout(() => {
+                popup.classList.remove('praise-anim');
+                popup.classList.add('hidden');
+            }, 2000);
+        }
+
+        // --- 4. THE NIGHTFALL EVENT (Transition) ---
+        const slider = document.getElementById('night-slider');
+        const label = document.getElementById('sun-label');
+        let nightTriggered = false;
+
+        if(slider) {
+            slider.addEventListener('input', (e) => {
+                const val = e.target.value;
+                if(val < 30) label.innerText = "Daylight";
+                else if(val < 70) label.innerText = "Dusk";
+                else label.innerText = "Nightfall";
+                
+                if(val >= 95 && !nightTriggered) {
+                    nightTriggered = true;
+                    slider.disabled = true;
+                    triggerNightmare();
+                }
+            });
+        }
+
+        function triggerNightmare() {
+            document.body.classList.add('theme-nightmare');
+            setTimeout(() => {
+                nextSlide(); // Avança para o Nightmare Trailer Prep
+                nightTriggered = false;
+                slider.disabled = false;
+            }, 1500);
+        }
+
+        // --- 5. Minigame: Nail the Window (Corrigido para Mostrar Pergunta e Resposta) ---
+        function nailWindow(btn, plankNum, answer) {
+            if (btn.classList.contains('nailed')) return;
+            
+            btn.classList.add('nailed', 'border-red-700', 'bg-red-900/20');
+            
+            // Revelar o texto da resposta
+            const blank = btn.querySelector('.blank-word');
+            blank.innerText = "> " + answer;
+            blank.classList.remove('text-transparent', 'border-gray-500', 'px-6', 'mx-1');
+            blank.classList.add('text-red-500');
+
+            // Revelar a caixa de follow-up
+            const revealBox = btn.querySelector('.reveal-box');
+            if (revealBox) revealBox.classList.remove('hidden');
+
+            // Animar a tábua de madeira na janela
+            const plank = document.getElementById(`plank-${plankNum}`);
+            if (plank) plank.classList.add('plank-anim');
+            
+            triggerPraise("NAILED IT! 🔨");
+        }
+
+        // --- 6. Rating (Talismans) ---
+        function rate(n) {
+            const drops = document.querySelectorAll('.talisman-rating');
+            drops.forEach((d, i) => {
+                d.classList.toggle('grayscale', i >= n);
+                d.classList.toggle('opacity-30', i >= n);
+            });
+            document.getElementById('rat-hub').classList.remove('hidden');
+            document.getElementById('star-c').innerText = n;
+        }
+
+        // Initialize
+        updateUI();
+    </script>
+</body>
+</html>
